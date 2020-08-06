@@ -1,0 +1,7 @@
+{ 
+  "templates":[
+    {
+       "file":"dc-template.yaml"
+       }
+   ]
+}

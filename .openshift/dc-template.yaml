@@ -1,0 +1,192 @@
+######################################################################
+##
+## Please do NOT change or modify any of the lines above the "kind"
+## field, under the objects heading.  These are boilerplate components 
+## needed for the CICD process to function correctly.  We have tried to
+## include a standardized structure, with pre-defined parameters for 
+## the most common items that would be customized.  There are some
+## parameters that are required for the CICD process to function.  These
+## will be called out throughout the file.
+##
+######################################################################
+apiVersion: v1
+kind: Template
+labels:
+  template: dc-template
+message: Deploying using templated resources
+metadata:
+  name:  dc-template
+objects:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${APP_NAME}
+    labels:
+      app: ${APP_NAME}
+  spec:
+    replicas: ${{REPLICAS}}
+    selector:
+      app: ${APP_NAME}
+      deploymentconfig: ${APP_NAME}
+###############################################################################
+##
+## For deployment strategy, we are using the default value as "Rolling"
+## but you can change this via the parameter to "Recreate" if required.
+##
+###############################################################################
+    strategy:
+      type: ${STRATEGY}
+    template:
+      metadata:
+        labels:
+          app: ${APP_NAME}
+          deploymentconfig: ${APP_NAME}
+      spec:
+        containers:
+          - name: ${APP_NAME}
+###############################################################################
+##
+## While we allow for parameterized values for the container image name and tag,
+## please do NOT change the artifactory repository hostname.  Also the CICD process
+## requires the ENV parameter so please do not remove that as well.
+##
+############################################################################### 
+            image: ${AUTO_ID}-${MICROSERVICE_NAME}:${IMAGE_TAG}
+            imagePullPolicy: Always
+###############################################################################
+##
+## We are requiring that the resource limits and requests to be set.  We are not 
+## forcing a developer into a specific value.  We are requiring that these are
+## set to ensure developers are thinking about their application(s) requirements.
+## These are also required if you wish to use the horizontal pod autoscaler (HPA)
+## for this application, and ensures a runaway application does not impact other apps
+## in the cluster.
+##
+###############################################################################
+            resources:
+              limits:
+                cpu: ${CPU_LIMIT}
+                memory: ${MEM_LIMIT}
+              requests:
+                cpu: ${CPU_REQ}
+                memory: ${MEM_REQ}
+            ports:
+#############################################################################
+##
+## If you define a parameter that takes a decimal value, you need to use
+## the double curly braces {{ }} as seen below for SVC_PORT parameter for the 
+## service port.  For strings, use a single set of curly braces { }.
+##
+#############################################################################  
+            - containerPort: ${{SVC_PORT}}
+              protocol: TCP
+              
+#############################################################################
+##
+## Please do NOT remove the below "imagePullSecrets".  This is required to pull
+## images from artifactory.  This secret is automatically added to every OpenShift
+## project, with the name below.
+##
+#############################################################################  
+        imagePullSecrets:
+          - name: artifactory-secret
+#############################################################################
+##
+## Please leave the triggers portion of the template you use as an empty list [].
+## This ensures that the CICD process is responsible for executing roll out of changes
+##
+#############################################################################
+    triggers: []
+############################################
+parameters:
+- description: The name for the microservice
+  displayName: Microservice Name
+  name: MICROSERVICE_NAME
+  required: true
+  
+- description: The name for the app
+  displayName: Application Name
+  name: APP_NAME
+  required: true
+
+- description: The Automation ID
+  displayName: Automation ID
+  name: AUTO_ID
+  required: true
+
+- description: The name of the environment.
+  displayName: Environment Name
+  name: ENV
+  required: true
+
+- description: Artifactory Docker Image Tag
+  displayName: Artifactory Docker Image Tag
+  name: IMAGE_TAG
+  required: true
+##################################################################
+##
+## CPU resource request/limits can defined in millicores, or entire cores.
+## If defined in millicores, the value is a string.  If you will to assign
+## an whole core(s), then the value would be a decimal value which requires
+## quoting the value, ie. "1", as well as wrapping the parameter in the template
+## in double curly braces {{ }}.  Resource requests are the minimum
+## guaranteed amount of resources dedicated for this application.  The limit is 
+## the maximum amount of resource this application is permitted to use.
+##
+###################################################################
+- description: CPU Resource Request
+  displayName: CPU Resource Request
+  name: CPU_REQ
+  required: true
+  value: 100m
+  
+- description: Maximum CPU Resource Limit allowed
+  displayName: CPU Resource Limit
+  name: CPU_LIMIT
+  required: true
+  value: 200m
+#################################################################
+##
+## Memory resource requests and limits are defined in Mi (megabytes)
+## or Gi (Gigabytes).  You must use one of those qualifiers.
+## Requests are the minimum guaranteed amount of resources dedicated
+## for this application.  The limit is the maximum amount of resource 
+## this application is permitted to use.
+##
+#################################################################     
+- description: Memory Resource Request
+  displayName: Memory Resource Request
+  name: MEM_REQ
+  required: true
+  value: 50Mi
+ 
+- description: Memory Resource Limit (Ceiling) in Mi or Gi
+  displayName: Memory Resource Limit in Mi or Gi
+  name: MEM_LIMIT
+  required: true
+  value: 500Mi
+##############################################################
+##
+## For parameters that are decimal values, they must be quoted
+## in either single ' ', or double " " quotes.  The parameter name
+## throughout the template must also be wrapped in double curly braces
+## {{ }}.  
+##
+##############################################################
+- description: The number of replicas for this deployment
+  displayName: Replica count
+  name: REPLICAS
+  required: true
+  value: "1"
+
+- description: Service port
+  displayName: Service Port
+  name: SVC_PORT
+  required: true
+  value: "8080"
+
+- description: Deployment strategy
+  displayName: Deployment strategy
+  name: STRATEGY
+  required: true
+  value: Rolling

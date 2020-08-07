@@ -1,4 +1,4 @@
-repeat <- function(x) {
+repeatOutput <- function(x) {
     x <- 1
     repeat {
         print(x)
@@ -7,4 +7,4 @@ repeat <- function(x) {
     }
 }
 
-repeat(0)
+repeatOutput(0)

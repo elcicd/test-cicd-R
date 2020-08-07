@@ -4,4 +4,4 @@ WORKDIR /opt
 
 COPY . .
 
-CMD ["Rscript", "/opt/app_code.R"]
+CMD ["Rscript", "/opt/repeat_code.R"]

@@ -7,4 +7,8 @@ repeatOutput <- function(x) {
     }
 }
 
-repeatOutput(0)
+
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) != 0) {
+    repeatOutput(0)
+}

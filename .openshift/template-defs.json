@@ -1,7 +1,7 @@
 { 
   "templates":[
     {
-       "file":"dc-template.yaml"
+       "file":"dc-svc-template.yaml"
        }
    ]
 }

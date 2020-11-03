@@ -1,5 +1,7 @@
 library(testthat)
 
+increment <- function(x) {return(x + 1)}
+
 test_that("single number", {
   expect_equal(increment(-1), 0)
   expect_equal(increment(0), 1)

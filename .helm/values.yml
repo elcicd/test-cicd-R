@@ -1,2 +1,3 @@
-templates:
-- templateName: deploymentService
+elCicdChart:
+  templates:
+  - templateName: deploymentService

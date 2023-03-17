@@ -1,4 +1,4 @@
-FROM docker.io/rstudio/r-base:3.6.3-centos8
+FROM docker.io/rstudio/r-base:4.2.2-rockylinux9
 
 WORKDIR /opt
 

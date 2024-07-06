@@ -1,2 +1,2 @@
 elCicdTemplates:
-- templateName: deploymentService
+- templateName: deployment|service
